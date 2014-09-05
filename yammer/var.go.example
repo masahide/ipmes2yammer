@@ -3,6 +3,4 @@ package yammer
 var (
 	clientId     = "xxxxxxxxxxxxfa"
 	clientSecret = "falsdfjaslfkjsalfkjaslfkjasldfkjalj"
-	//
-	mail = "mail@example.com"
 )
