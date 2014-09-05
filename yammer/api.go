@@ -1,12 +1,11 @@
 package yammer
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"net/url"
-	"os"
 	"strconv"
 
 	"github.com/kr/pretty"
@@ -33,35 +32,24 @@ func (y *Yammer) EmailToIDYammer(email string) (id int, err error) {
 	return
 }
 
-func (y *Yammer) SendYammer(id int, message string) (err error) {
+// method	direct_to_id, replied_to_id
+func (y *Yammer) Send(method string, id int, message string) (string, error) {
 
 	//	func (c *Client) Post(url string, bodyType string, body io.Reader) (resp *Response, err error)
 
-	fmt.Println("\nstart Post")
 	r, err := y.transport.Client().PostForm(postURL, url.Values{
-		"direct_to_id": {strconv.Itoa(id)},
-		"body":         {message},
+		method: {strconv.Itoa(id)},
+		"body": {message},
 	})
-	fmt.Println("\nend Post")
 	if err != nil {
 		log.Fatal("Get:", err)
-		return
+		return "", err
 	}
 	defer r.Body.Close()
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(r.Body)
 	if r.StatusCode != 200 {
-		pretty.Printf("--- id:\n%# v\nstatus: %# v\n", id, r.StatusCode)
-		//pretty.Printf("sendMessage Response--------\n %# v\n", r)
-		fmt.Println()
-		fmt.Println("hoge[")
-		io.Copy(os.Stdout, r.Body)
-		fmt.Println("]fuga")
-		fmt.Println()
-		return fmt.Errorf("sendMessage %v", r.Status)
+		return buf.String(), fmt.Errorf("sendMessage Code:%d, Status:%v", r.StatusCode, r.Status)
 	}
-	pretty.Printf("--- id:\n%# v\nstatus: %# v\n", id, r.StatusCode)
-	pretty.Printf("Response --------\n %# v\n", r)
-	fmt.Println("hoge[")
-	io.Copy(os.Stdout, r.Body)
-	fmt.Println("]fuga")
-	return
+	return buf.String(), nil
 }
