@@ -12,8 +12,8 @@ import (
 	"github.com/kr/pretty"
 )
 
-func (y *Yammer) emailToIDYammer(email string) (id int, err error) {
-	r, in_err := y.transport.Client().Get(by_emailURL + "?email=" + mail)
+func (y *Yammer) EmailToIDYammer(email string) (id int, err error) {
+	r, in_err := y.transport.Client().Get(by_emailURL + "?email=" + email)
 	if in_err != nil {
 		log.Fatal("Get:", in_err)
 		return 0, in_err
@@ -33,7 +33,7 @@ func (y *Yammer) emailToIDYammer(email string) (id int, err error) {
 	return
 }
 
-func (y *Yammer) sendYammer(id int, message string) (err error) {
+func (y *Yammer) SendYammer(id int, message string) (err error) {
 
 	//	func (c *Client) Post(url string, bodyType string, body io.Reader) (resp *Response, err error)
 

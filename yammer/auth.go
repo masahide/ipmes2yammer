@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"os/exec"
 	"runtime"
 	"strings"
@@ -12,22 +11,6 @@ import (
 
 	"github.com/masahide/go-yammer/oauth"
 )
-
-type LocalServerConfig struct {
-	Port    int
-	Timeout int
-}
-
-type RedirectResult struct {
-	Code string
-	Err  error
-}
-
-type Yammer struct {
-	transport *oauth.Transport
-	config    *oauth.Config
-	lsConfig  *LocalServerConfig
-}
 
 const (
 	cachefile = "cache.json"
@@ -48,7 +31,7 @@ const (
 	//mail        =
 )
 
-func (y *Yammer) YammerAuth() {
+func (y *Yammer) YammerAuth() error {
 	runtime.GOMAXPROCS(2)
 
 	y.config = &oauth.Config{
@@ -63,33 +46,34 @@ func (y *Yammer) YammerAuth() {
 
 	transport, err := y.yammerOauth()
 	if err != nil {
-		log.Fatal("Yammer Oauth Error:", err)
+		return err
 	}
 	y.transport = transport
+	return nil
 
 }
 
-func (y *Yammer) yammerOauth() (transport *oauth.Transport, err error) {
+func (y *Yammer) yammerOauth() (*oauth.Transport, error) {
 
-	transport = &oauth.Transport{Config: y.config}
+	transport := &oauth.Transport{Config: y.config}
 
 	// キャッシュからトークンファイルを取得
-	_, err = y.config.TokenCache.Token()
+	_, err := y.config.TokenCache.Token()
 	if err != nil {
 		code, err := y.getAuthCode()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "%v\n", err)
-			os.Exit(1)
+			log.Printf("Error: getAuthCode: %v\n", err)
+			return nil, err
 		}
 
 		// 認証トークンを取得する。（取得後、キャッシュへ）
 		_, err = transport.Exchange(code)
 		if err != nil {
 			fmt.Printf("Exchange Error: %v\n", err)
-			os.Exit(1)
+			return nil, err
 		}
 	}
-	return
+	return transport, nil
 }
 
 func (y *Yammer) getAuthCode() (string, error) {
@@ -151,9 +135,8 @@ func (y *Yammer) getAuthCode() (string, error) {
 	// set redirect timeout
 	tch := time.After(time.Duration(y.lsConfig.Timeout) * time.Second)
 
-	fmt.Println("Start your browser after 2sec.")
-
-	time.Sleep(2 * time.Second)
+	//fmt.Println("Start your browser after 2sec.")
+	//time.Sleep(2 * time.Second)
 
 	if err := cmd.Start(); err != nil {
 		return "", fmt.Errorf("Browser Start Error: %v\n", err)
