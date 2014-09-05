@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/masahide/go-yammer/oauth"
+	"github.com/masahide/ipmes2yammer/oauth"
 )
 
 const (

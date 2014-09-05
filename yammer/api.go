@@ -8,8 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"strconv"
-
-	"github.com/kr/pretty"
 )
 
 func (y *Yammer) EmailToIDYammer(email string) (id int, err error) {
@@ -27,16 +25,12 @@ func (y *Yammer) EmailToIDYammer(email string) (id int, err error) {
 	if err = json.NewDecoder(r.Body).Decode(&data); err != nil {
 		return
 	}
-	//pretty.Printf("--- data:\n%# v\n\n", data)
 	id = int(data.([]interface{})[0].(map[string]interface{})["id"].(float64))
-	pretty.Printf("--- id:\n%# v\n\n", id)
+	fmt.Printf("--- id:\n%# v\n\n", id)
 	return
 }
 
-// method	direct_to_id, replied_to_id
 func (y *Yammer) Send(method string, id int, message string) (string, error) {
-
-	//	func (c *Client) Post(url string, bodyType string, body io.Reader) (resp *Response, err error)
 
 	r, err := y.transport.Client().PostForm(postURL, url.Values{
 		method: {strconv.Itoa(id)},
