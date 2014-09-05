@@ -9,8 +9,8 @@ import (
 	"runtime"
 
 	//"github.com/ActiveState/tail"
-	"github.com/masahide/go-yammer/ipmes"
-	"github.com/masahide/go-yammer/yammer"
+	"github.com/masahide/ipmes2yammer/ipmes"
+	"github.com/masahide/ipmes2yammer/yammer"
 )
 
 func main() {
